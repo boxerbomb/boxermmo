@@ -13,14 +13,17 @@ colors=[
     (0,0,255),
     (255,0,255),
     (140,204,230),
+    (128,128,128)
     ]
 """
 players(1-5)
 wall
 
 """
+reqX=0
+reqY=0
+newMap = [[0 for x in range(8)] for x in range(8)]
 
-newMap = [[0 for x in range(9)] for x in range(9)]
 
             
 size = width, height = 400, 400
@@ -42,16 +45,21 @@ s.send('hello')
 data=s.recv(size)
 s.close()
 idnum=int(data)
-playerY=random.randint(1,8)
-playerX=random.randint(1,8)
-gridX=0
-gridY=0
 
+gridX=1
+gridY=1
+move_tick=3
 while True:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host,port))
-    gridX=(playerX+50)//50+1
-    gridY=(playerY+50)//50+1
+
+    if gridX>=(reqX+8)-2:
+        if reqX<=16:
+            gridX=gridX-1
+            reqX=reqX+1
+            print("id:",idnum)
+            s.send("req,"+str(reqX)+","+str(reqY)+","+str(idnum),0)
+    
     s.send('mov,'+str(gridX)+','+str(gridY)+','+str(idnum)) 
     data = s.recv(size) 
     s.close()
@@ -61,27 +69,40 @@ while True:
     for y in range(0,len(newMap)):
         for x in range(0,len(newMap)):
             if newMap[x][y]==0:
-                pygame.draw.rect(screen, (139,69,19), ((x-1)*50,(y-1)*50,50,50),0)
+                pygame.draw.rect(screen, (139,69,19), ((x)*50,(y)*50,50,50),0)
+            elif newMap[x][y]==5:
+                pygame.draw.rect(screen, colors[newMap[x][y]], ((x)*50,(y)*50,50,50),0)
             else:
-                #Don't Draw Youself
-                if newMap[x][y]!=idnum:
-                    pygame.draw.rect(screen, colors[newMap[x][y]], ((x-1)*50,(y-1)*50,50,50),0)
-                
-    #Draw Yourself
-    pygame.draw.rect(screen,colors[idnum],(playerX+25,playerY+25,50,50),0)
+                pygame.draw.rect(screen, colors[newMap[x][y]], ((x)*50,(y)*50,50,50),0)
+    pygame.font.init()
+    font=pygame.font.Font(None,30)
+    text=font.render("reqX:"+str(reqX)+" reqY:"+str(reqY),1,(255,255,255))
+    screen.blit(text,(0,0))
+        
     pygame.display.update()
     keys=pygame.key.get_pressed()
-
+    move_tick=move_tick-1
     if keys[K_LEFT]:
-        playerX-=10
+        if move_tick==0:
+            gridX-=1
+            move_tick=3
+        
     if keys[K_RIGHT]:
-        playerX+=10
+        if move_tick==0:
+            gridX+=1
+            move_tick=3
 
     if keys[K_UP]:
-        playerY-=10
+        if move_tick==0:
+            gridY-=1
+            move_tick=3
 
     if keys[K_DOWN]:
-        playerY+=10
+        if move_tick==0:
+            gridY+=1
+            move_tick=3
+    if move_tick<0:
+        move_tick=3
 
     
     for event in pygame.event.get():
