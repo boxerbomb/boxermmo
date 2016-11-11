@@ -27,18 +27,18 @@ while 1:
     if parse[0]=="hello":
         print("New Player")
         players.append([client,random.randint(1,8),random.randint(1,8)])
-        client.send(str(len(players)-1))
-        print(str(len(players)-1))
+        client.send(str(len(players)))
+        print(str(len(players)))
 
     
     if parse[0]=="mov":
 
-        row=int(parse[3])
+        row=int(parse[3])-1
         
         Map[players[row][1]][players[row][2]]=0
         players[row][1]=int(parse[1])
         players[row][2]=int(parse[2])
-        Map[players[row][1]][players[row][2]]=1
+        Map[players[row][1]][players[row][2]]=row+1
     if data:
         senddata=pickle.dumps(Map)
         client.send(senddata) 
