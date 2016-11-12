@@ -5,14 +5,15 @@ A simple echo server
 """ 
 
 import socket,pickle,random
-from multiprocessing import Process
-fullMap = [[0 for x in range(24)] for x in range(24)]
+mapsize=24
+fullMap = [[0 for x in range(mapsize)] for x in range(mapsize)]
 sendMap = [[0 for x in range(8)] for x in range(8)]
-for y in range(0,24):
-    for x in range(0,24):
-        if x==0 or x==24 or y==0 or y==24:
+for y in range(0,mapsize):
+    for x in range(0,mapsize):
+        if x==0 or x==mapsize-2 or y==0 or y==mapsize-2:
             fullMap[x][y]=5
-print(sendMap)
+
+
 #[client,x,y,startx,starty]
 players=[]
 
